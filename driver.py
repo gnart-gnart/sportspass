@@ -2,29 +2,38 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-def waitForElement(driver, by, value, timeout=10):
-    return WebDriverWait(driver, timeout).until(
-        EC.visibility_of_element_located((by, value))
-    )
-
-def findElement(driver, by, value):
-    return driver.find_element(by, value)
+def waitForElement(driver, by, value, timeout=30):
+    try:
+        return WebDriverWait(driver, timeout).until(
+            EC.visibility_of_element_located((by, value))
+        )
+    except TimeoutException:
+        print(f"Timeout while waiting for element with {by}='{value}'.")
+        return None
 
 def interactWithElement(driver, by, value, action='click'):
-    if by == By.XPATH and 'href' in value:
-        element = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((by, f'//a[@href="{value}"]'))
-        )
+    element = waitForElement(driver, by, value)
+    if element:
+        if action == 'click':
+            WebDriverWait(driver, 30).until(
+                EC.element_to_be_clickable((by, value))
+            ).click()
+        elif action == 'send_keys':
+            return element
+        elif action == 'submit':
+            element.send_keys(Keys.RETURN)
     else:
-        element = waitForElement(driver, by, value)
-    
-    if action == 'click':
-        element.click()
-    elif action == 'send_keys':
-        return element
-    elif action == 'submit':
-        element.send_keys(Keys.RETURN)
-    
+        print(f"Element with {by}='{value}' not found.")
     return element
 
+def waitForPageToLoad(driver, timeout=30):
+    try:
+        WebDriverWait(driver, timeout).until(
+            lambda d: d.execute_script('return document.readyState') == 'complete'
+        )
+        return True
+    except TimeoutException:
+        print("Page load timed out.")
+        return False
