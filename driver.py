@@ -27,3 +27,4 @@ def interactWithElement(driver, by, value, action='click'):
         element.send_keys(Keys.RETURN)
     
     return element
+
