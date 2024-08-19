@@ -1,0 +1,12 @@
+brotlipy==0.7.0
+certifi
+cffi
+click
+cryptography
+idna
+pycparser
+pyOpenSSL
+PySocks
+python-dotenv
+selenium
+urllib3
