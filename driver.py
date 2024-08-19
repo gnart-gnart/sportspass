@@ -4,26 +4,30 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-def waitForElement(driver, by, value, timeout=30):
+def waitForElement(driver, by, value, timeout=10):
     try:
-        return WebDriverWait(driver, timeout).until(
-            EC.visibility_of_element_located((by, value))
+        element = WebDriverWait(driver, timeout).until(
+            EC.presence_of_element_located((by, value))
         )
+        return element
     except TimeoutException:
-        print(f"Timeout while waiting for element with {by}='{value}'.")
+        print(f"Timeout while waiting for element with {by}='{value}'")
         return None
 
 def interactWithElement(driver, by, value, action='click'):
     element = waitForElement(driver, by, value)
     if element:
-        if action == 'click':
-            WebDriverWait(driver, 30).until(
-                EC.element_to_be_clickable((by, value))
-            ).click()
-        elif action == 'send_keys':
-            return element
-        elif action == 'submit':
-            element.send_keys(Keys.RETURN)
+        try:
+            if action == 'click':
+                WebDriverWait(driver, 30).until(
+                    EC.element_to_be_clickable((by, value))
+                ).click()
+            elif action == 'send_keys':
+                return element
+            elif action == 'submit':
+                element.send_keys(Keys.RETURN)
+        except Exception as e:
+            print(f"Failed to {action} element with {by}='{value}': {e}")
     else:
         print(f"Element with {by}='{value}' not found.")
     return element
