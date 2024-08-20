@@ -142,7 +142,7 @@ while not sportsPassSecured:
             print("Failed to click the save my choice button:", e)
 
 
-            
+
     else:
         print("Input is disabled, refreshing and restarting the process...")
         driver.refresh()
